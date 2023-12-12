@@ -63,7 +63,7 @@ states = {
 }
 
 
-def update_task_states():
+def _update_task_states():
     running_task = None
     try:
         running_task = running_tasks[0]
@@ -78,7 +78,7 @@ def update_task_states():
 
 def add_task(task: AsyncTask):
     async_tasks.append(task)
-    return update_task_states()
+    return _update_task_states()
 
 
 def remove_task(selected):
@@ -88,7 +88,7 @@ def remove_task(selected):
         if task.uuid in to_stop:
             async_tasks.remove(task)
 
-    return update_task_states()
+    return _update_task_states()
 
 
 def clear_tasks():
@@ -878,7 +878,8 @@ def worker():
         time.sleep(0.01)
         if len(async_tasks) > 0:
             task = async_tasks.pop(0)
-            running_tasks.append(task)
+            _running_tasks.append(task)
+            update_task_states()
             try:
                 handler(task)
             except:
@@ -887,6 +888,7 @@ def worker():
                 build_image_wall(task)
                 yield_finish(task)
                 running_tasks.remove(task)
+                _update_task_states()
                 pipeline.prepare_text_encoder(async_call=True)
     pass
 

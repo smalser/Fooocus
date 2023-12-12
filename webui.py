@@ -220,10 +220,6 @@ with shared.gradio_root:
                 progress_gallery = gr.Gallery(label='Finished Images', show_label=True, object_fit='contain',
                                               height=768, elem_classes=['main_view', 'image_gallery'])
 
-            with gr.Accordion(label='Gallery', open=False) as gallery_holder:
-                clear_button = gr.Button(label="Clear workspace", value="Clear workspace", elem_id='clear_button')
-                gallery = gr.Gallery(label='Gallery', show_label=True, object_fit='contain', height=768, elem_classes=['main_view', 'image_gallery'])
-
             with gr.Accordion(label='Used prompts', open=False):
                 real_positive_prompt = gr.Textbox(info='Positive prompt', elem_id='real_positive_prompt', text_align='left', container=False, interactive=False, show_label=False, lines=3)
                 real_negative_prompt = gr.Textbox(info='Negative prompt', elem_id='real_negative_prompt', text_align='left', container=False, interactive=False, show_label=False, lines=3)
@@ -270,6 +266,10 @@ with shared.gradio_root:
 
                 stop_button.click(stop_clicked, queue=False, show_progress=False)
                 skip_button.click(skip_clicked, queue=False, show_progress=False)
+
+            with gr.Accordion(label='Gallery', open=False) as gallery_holder:
+                clear_button = gr.Button(label="Clear workspace", value="Clear workspace", elem_id='clear_button')
+                gallery = gr.Gallery(label='Gallery', show_label=True, object_fit='contain', elem_classes=['main_view', 'image_gallery'])
 
         with gr.Column(scale=1) as advanced_column:
             with gr.Tab(label='Setting'):
