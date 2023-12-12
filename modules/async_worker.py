@@ -873,10 +873,9 @@ def worker():
 
         if advanced_parameters.generate_image_grid:
             wall = build_image_wall(async_task)
-            wall_filename = log(wall, locals().get('d', {}))
-            result_filenames.append(log([wall_filename] if wall_filename else result_filenames, locals().get('d', {}), single_line_number=3))
-        else:
-            log_batch(result_filenames, locals().get('d', {}))
+            result_filenames = [log(wall, locals().get('d', {}))] or result_filenames
+
+        log_batch(result_filenames, locals().get('d', {}))
 
         return
 
