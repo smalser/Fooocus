@@ -878,8 +878,8 @@ def worker():
         time.sleep(0.01)
         if len(async_tasks) > 0:
             task = async_tasks.pop(0)
-            _running_tasks.append(task)
-            update_task_states()
+            running_tasks.append(task)
+            _update_task_states()
             try:
                 handler(task)
             except:
