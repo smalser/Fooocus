@@ -217,7 +217,8 @@ with shared.gradio_root:
                 progress_gallery = gr.Gallery(label='Finished Images', show_label=True, object_fit='contain',
                                               height=768, elem_classes=['main_view', 'image_gallery'])
 
-            with gr.Accordion(label='Gallery', open=False):
+            with gr.Accordion(label='Gallery', open=False) as gallery_holder:
+                clear_button = gr.Button(label="Clear workspace", value="Clear workspace", elem_id='clear_button')
                 gallery = gr.Gallery(label='Gallery', show_label=True, object_fit='contain', height=768, elem_classes=['main_view', 'image_gallery'])
 
             with gr.Accordion(label='Used prompts', open=False):
@@ -291,7 +292,7 @@ with shared.gradio_root:
                     seed_random = gr.Checkbox(label='Random Seed', value=True)
                     image_seed = gr.Textbox(label='Seed', value=0, max_lines=1)
 
-                clear_button = gr.Button(label="Clear workspace", value="Clear workspace", elem_id='clear_button')
+
                 refresh_button = gr.Button(label="Refresh workspace", value="Refresh workspace", elem_id='refresh_button')
 
                 ##
@@ -688,8 +689,8 @@ with shared.gradio_root:
             .click(lambda: (gr.update(visible=True, interactive=True),
                             gr.update(visible=True, interactive=True),
                             gr.update(visible=True, interactive=True),
-                            gr.update(visible=False)),
-                   outputs=[stop_button, skip_button, queue_button, generate_button])
+                            gr.update(visible=False), gr.update(open=False)),
+                   outputs=[stop_button, skip_button, queue_button, generate_button, gallery_holder])
             .then(fn=refresh_seed, inputs=[seed_random, image_seed], outputs=image_seed)
             .then(advanced_parameters.set_all_advanced_parameters, inputs=adps)
             .then(fn=generate_click, inputs=ctrls, outputs=ctrls_outputs)

@@ -5,6 +5,8 @@ import dataclasses
 import threading
 import uuid
 
+from modules.private_logger import log_batch
+
 
 @dataclasses.dataclass
 class TaskArgs:
@@ -206,6 +208,7 @@ def worker():
     def handler(async_task: AsyncTask):
         execution_start_time = time.perf_counter()
         args = async_task.args
+        result_filenames = []
 
         cn_tasks = {x: [] for x in flags.ip_list}
         for _ in range(4):
@@ -853,7 +856,8 @@ def worker():
                     for n, w in args.loras:
                         if n != 'None':
                             d.append((f'LoRA [{n}] weight', w))
-                    log(x, d, single_line_number=3)
+                    filename = log(x, d, single_line_number=3)
+                    result_filenames.append(filename)
 
                 yield_result(async_task, imgs, do_not_show_finished_images=len(tasks) == 1)
             except fcbh.model_management.InterruptProcessingException as e:
@@ -864,6 +868,7 @@ def worker():
                     print('User stopped')
                     break
 
+            log_batch(result_filenames, locals().get('d', {}))
             execution_time = time.perf_counter() - execution_start_time
             print(f'Generating and saving time: {execution_time:.2f} seconds')
 

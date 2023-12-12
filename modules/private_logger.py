@@ -60,4 +60,44 @@ def log(img, dic, single_line_number=3):
 
     log_cache[html_name] = existing_log
 
+    return only_name
+
+
+def log_batch(filenames, dic, single_line_number=3):
+    if not filenames:
+        return
+
+    date_string, local_temp_filename, _ = generate_temp_filename(folder=modules.config.path_outputs, extension='png')
+    html_name = os.path.join(os.path.dirname(local_temp_filename), 'log_batch.html')
+    existing_log = log_cache.get(html_name, None)
+
+    if existing_log is None:
+        if os.path.exists(html_name):
+            existing_log = open(html_name, encoding='utf-8').read()
+        else:
+            existing_log = f'<p>Fooocus Log {date_string} (private)</p>\n<p>All images do not contain any hidden data.</p>'
+
+    div_name = filenames[0].replace('.', '_')
+    item = f'<div id="{div_name}">\n'
+    item += f"<p>{filenames[0]}</p>\n"
+    for i, (k, v) in enumerate(dic):
+        if i < single_line_number:
+            item += f"<p>{k}: <b>{v}</b> </p>\n"
+        else:
+            if (i - single_line_number) % 2 == 0:
+                item += f"<p>{k}: <b>{v}</b>, "
+            else:
+                item += f"{k}: <b>{v}</b></p>\n"
+
+    imgs = "".join([f"<img src=\"{name}\" width=auto height=100% loading=lazy style=\"height:auto;max-width:512px\" onerror=\"document.getElementById('{div_name}').style.display = 'none';\"></img>" for name in filenames])
+    item += f"<p></p>{imgs}<hr></div>\n"
+    existing_log = item + existing_log
+
+    with open(html_name, 'w', encoding='utf-8') as f:
+        f.write(existing_log)
+
+    print(f'Image generated with private log at: {html_name}')
+
+    log_cache[html_name] = existing_log
+
     return
