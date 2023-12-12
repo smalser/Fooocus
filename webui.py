@@ -187,7 +187,7 @@ def processing_state():
     yield (
         gr.update(visible=False, value=modules.html.make_progress_html(*worker.states['progress_bar'])),
         gr.update(value=None, visible=False),
-        gr.update(value=task.results if task else None),
+        gr.update(),
         gr.update(value=worker.states['gallery']),
         gr.update(value=worker.states['running_task']),
         gr.update(choices=worker.states['tasks_list']),
