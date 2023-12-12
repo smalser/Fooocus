@@ -697,10 +697,6 @@ with shared.gradio_root:
             .then(fn=processing_state, outputs=ctrls_outputs + [
                 real_positive_prompt, real_negative_prompt,
             ])
-            .then(fn=update_state, outputs=[
-                progress_html, progress_window, progress_gallery, gallery,
-                queue_running_task, queue_tasks_list,
-                ])
             .then(lambda: (gr.update(visible=True),
                            gr.update(visible=False),
                            gr.update(visible=False),
