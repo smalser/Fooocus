@@ -201,7 +201,7 @@ def worker():
 
         # must use deep copy otherwise gradio is super laggy. Do not use list.append() .
         async_task.results = async_task.results + [wall]
-        return
+        return wall
 
     @torch.no_grad()
     @torch.inference_mode()
@@ -871,7 +871,13 @@ def worker():
             execution_time = time.perf_counter() - execution_start_time
             print(f'Generating and saving time: {execution_time:.2f} seconds')
 
-        log_batch(result_filenames, locals().get('d', {}))
+        if advanced_parameters.generate_image_grid:
+            wall = build_image_wall(async_task)
+            wall_filename = log(wall, locals().get('d', {}))
+            result_filenames.append(log([wall_filename] if wall else result_filenames, locals().get('d', {}), single_line_number=3))
+        else:
+            log_batch(result_filenames, locals().get('d', {}))
+
         return
 
     while True:
@@ -885,7 +891,6 @@ def worker():
             except:
                 traceback.print_exc()
             finally:
-                build_image_wall(task)
                 yield_finish(task)
                 running_tasks.remove(task)
                 _update_task_states()

@@ -163,14 +163,14 @@ def processing_state():
                 yield (
                     gr.update(visible=True,
                               value=modules.html.make_progress_html(*worker.states['progress_bar'])),
-                    gr.update(value=worker.states['preview']),
+                    gr.update(visible=True, value=worker.states['preview']),
                     *[gr.update() for _ in range(6)],
                 )
             elif flag == 'Results':
                 yield (
                     gr.update(visible=True,
                               value=modules.html.make_progress_html(*worker.states['progress_bar'])),
-                    gr.update(value=worker.states['preview']),
+                    gr.update(visible=True, value=worker.states['preview']),
                     gr.update(value=args),
                     gr.update(value=worker.states['gallery']),
                     *[gr.update() for _ in range(4)],
@@ -178,7 +178,7 @@ def processing_state():
             elif flag == 'Finish':
                 yield (
                     gr.update(visible=bool(worker.running_tasks), value=modules.html.make_progress_html(*worker.states['progress_bar'])),
-                    gr.update(value=worker.states['preview']),
+                    gr.update(visible=True, value=worker.states['preview']),
                     gr.update(value=args),
                     gr.update(value=worker.states['gallery']),
                     *[gr.update() for _ in range(4)],

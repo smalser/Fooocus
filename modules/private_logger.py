@@ -28,7 +28,7 @@ def get_current_html_batch_path():
 
 
 def log(img, dic, single_line_number=3):
-    if args_manager.args.disable_image_log:
+    if not img or args_manager.args.disable_image_log:
         return
 
     date_string, local_temp_filename, only_name = generate_temp_filename(folder=modules.config.path_outputs, extension='png')
