@@ -93,7 +93,7 @@ def remove_task(selected):
 
 def clear_tasks():
     async_tasks.clear()
-    return update_task_states()
+    return _update_task_states()
 
 
 def worker():
@@ -158,7 +158,7 @@ def worker():
     def yield_finish(async_task):
         states['preview'] = None
         states['gallery'].extend(async_task.results)
-        events.append(('Finish', states['gallery']))
+        events.append(('Finish', async_task.results))
 
     def build_image_wall(async_task):
         if not advanced_parameters.generate_image_grid:

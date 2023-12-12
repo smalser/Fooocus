@@ -57,7 +57,7 @@ def update_state():
 
     return (
         gr.update(visible=bool(task), value=modules.html.make_progress_html(*worker.states['progress_bar'])),
-        gr.update(visible=bool(worker.states['preview']), value=worker.states['preview']),
+        gr.update(visible=bool(worker.states['preview'] is not None), value=worker.states['preview']),
         gr.update(value=task.results if task else None),
         gr.update(value=worker.states['gallery']),
         gr.update(value=worker.states['running_task']),
