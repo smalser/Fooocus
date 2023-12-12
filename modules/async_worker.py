@@ -868,10 +868,10 @@ def worker():
                     print('User stopped')
                     break
 
-            log_batch(result_filenames, locals().get('d', {}))
             execution_time = time.perf_counter() - execution_start_time
             print(f'Generating and saving time: {execution_time:.2f} seconds')
 
+        log_batch(result_filenames, locals().get('d', {}))
         return
 
     while True:

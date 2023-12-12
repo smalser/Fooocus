@@ -17,12 +17,9 @@ import copy
 
 from modules import sdxl_styles
 from modules.sdxl_styles import legal_style_names
-from modules.private_logger import get_current_html_path
+from modules.private_logger import get_current_html_batch_path, get_current_html_path
 from modules.ui_gradio_extensions import reload_javascript
 from modules.auth import auth_enabled, check_auth
-
-
-global_queue = []
 
 
 def create_task(*args):
@@ -439,6 +436,7 @@ with shared.gradio_root:
 
                 if not args_manager.args.disable_image_log:
                     gr.HTML(f'<a href="/file={get_current_html_path()}" target="_blank">\U0001F4DA History Log</a>')
+                    gr.HTML(f'<a href="/file={get_current_html_batch_path()}" target="_blank">\U0001F4DA History Log(batched)</a>')
 
             with gr.Tab(label='Style'):
                 style_sorter.try_load_sorted_styles(
@@ -609,7 +607,7 @@ with shared.gradio_root:
 
                 with gr.Group():
                     stop_any = gr.Button(label="Stop selected", value="Stop", elem_id='stop_any_button')
-                    queue_running_task = gr.Text(label='Running task', value=None)
+                    queue_running_task = gr.Text(label='Running task', lines=2, value=None)
                     queue_tasks_list = gr.CheckboxGroup(label="Queued tasks", choices=[])
 
                 ##

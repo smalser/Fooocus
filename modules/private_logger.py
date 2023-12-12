@@ -20,6 +20,13 @@ def get_current_html_path():
     return html_name
 
 
+def get_current_html_batch_path():
+    date_string, local_temp_filename, only_name = generate_temp_filename(folder=modules.config.path_outputs,
+                                                                         extension='png')
+    html_name = os.path.join(os.path.dirname(local_temp_filename), 'log_batch.html')
+    return html_name
+
+
 def log(img, dic, single_line_number=3):
     if args_manager.args.disable_image_log:
         return
