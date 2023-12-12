@@ -57,7 +57,7 @@ def update_state():
 
     return (
         gr.update(visible=bool(task), value=modules.html.make_progress_html(*worker.states['progress_bar'])),
-        gr.update(value=worker.states['preview']),
+        gr.update(visible=bool(worker.states['preview']), value=worker.states['preview']),
         gr.update(value=task.results if task else None),
         gr.update(value=worker.states['gallery']),
         gr.update(value=worker.states['running_task']),
@@ -80,10 +80,6 @@ def queue_click(*args):
         - outpaint_selections, inpaint_input_image, inpaint_additional_prompt
         - *ip_ctrls
     Outputs:
-        progress_html
-        progress_window
-        progress_gallery
-        gallery
         queue_running_task
         queue_tasks_list
     """
@@ -107,7 +103,7 @@ def generate_click(*args):
     worker.add_task(task)
     yield (
         gr.update(visible=True, value=modules.html.make_progress_html(1, 'Waiting for task to start ...')),
-        gr.update(),
+        gr.update(visible=True),
         gr.update(),
         gr.update(),
         gr.update(value=worker.states['running_task']),
