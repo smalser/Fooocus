@@ -616,7 +616,7 @@ with shared.gradio_root:
                 stop_any.click(lambda x: gr.update(choices=worker.remove_task(x)[1]), inputs=queue_tasks_list, outputs=queue_tasks_list, queue=False)
 
             ##
-            clear_button.click(lambda: worker.clear_tasks(), queue=False).then(fn=update_state, outputs=[
+            clear_button.click(lambda: worker.states['gallery'].clear(), queue=False).then(fn=update_state, outputs=[
                 progress_html, progress_window, progress_gallery, gallery,
                 queue_running_task, queue_tasks_list,
             ], queue=False)
