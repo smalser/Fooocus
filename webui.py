@@ -46,7 +46,6 @@ def update_state():
         progress_html
         progress_window
         progress_gallery
-        gallery
         queue_running_task
         queue_tasks_list
     """
@@ -56,10 +55,9 @@ def update_state():
         task = None
 
     return (
-        gr.update(visible=bool(task), value=modules.html.make_progress_html(*worker.states['progress_bar'])),
+        gr.update(visible=bool(worker.running_tasks), value=modules.html.make_progress_html(*worker.states['progress_bar'])),
         gr.update(visible=bool(worker.states['preview'] is not None), value=worker.states['preview']),
         gr.update(value=task.results if task else None),
-        gr.update(value=worker.states['gallery']),
         gr.update(value=worker.states['running_task']),
         gr.update(choices=worker.states['tasks_list']),
     )
@@ -105,7 +103,6 @@ def generate_click(*args):
         gr.update(visible=True, value=modules.html.make_progress_html(1, 'Waiting for task to start ...')),
         gr.update(visible=True),
         gr.update(),
-        gr.update(),
         gr.update(value=worker.states['running_task']),
         gr.update(choices=worker.states['tasks_list']),
     )
@@ -117,7 +114,6 @@ def processing_state():
         progress_html
         progress_window
         progress_gallery
-        gallery
         queue_running_task
         queue_tasks_list
         real_positive_prompt
@@ -155,7 +151,7 @@ def processing_state():
             if flag == "Prompts":
                 positive, negative = args
                 yield (
-                    *[gr.update() for _ in range(6)],
+                    *[gr.update() for _ in range(5)],
                     gr.update(value=positive),
                     gr.update(value=negative),
                 )
@@ -164,7 +160,7 @@ def processing_state():
                     gr.update(visible=True,
                               value=modules.html.make_progress_html(*worker.states['progress_bar'])),
                     gr.update(visible=True, value=worker.states['preview']),
-                    *[gr.update() for _ in range(6)],
+                    *[gr.update() for _ in range(5)],
                 )
             elif flag == 'Results':
                 yield (
@@ -172,7 +168,6 @@ def processing_state():
                               value=modules.html.make_progress_html(*worker.states['progress_bar'])),
                     gr.update(visible=True, value=worker.states['preview']),
                     gr.update(value=args),
-                    gr.update(value=worker.states['gallery']),
                     *[gr.update() for _ in range(4)],
                 )
             elif flag == 'Finish':
@@ -180,7 +175,6 @@ def processing_state():
                     gr.update(visible=bool(worker.running_tasks), value=modules.html.make_progress_html(*worker.states['progress_bar'])),
                     gr.update(visible=True, value=worker.states['preview']),
                     gr.update(value=args),
-                    gr.update(value=worker.states['gallery']),
                     *[gr.update() for _ in range(4)],
                 )
 
@@ -188,7 +182,6 @@ def processing_state():
         gr.update(visible=False, value=modules.html.make_progress_html(*worker.states['progress_bar'])),
         gr.update(value=None, visible=False),
         gr.update(),
-        gr.update(value=worker.states['gallery']),
         gr.update(value=worker.states['running_task']),
         gr.update(choices=worker.states['tasks_list']),
         gr.update(),
@@ -262,10 +255,6 @@ with shared.gradio_root:
 
                 stop_button.click(stop_clicked, queue=False, show_progress=False)
                 skip_button.click(skip_clicked, queue=False, show_progress=False)
-
-            with gr.Accordion(label='Gallery', open=False) as gallery_holder:
-                clear_button = gr.Button(label="Clear workspace", value="Clear workspace", elem_id='clear_button')
-                gallery = gr.Gallery(label='Gallery', show_label=True, object_fit='contain', elem_classes=['main_view', 'image_gallery'])
 
         with gr.Column(scale=1) as advanced_column:
             with gr.Tab(label='Setting'):
@@ -508,7 +497,7 @@ with shared.gradio_root:
                         with gr.Row():
                             lora_model = gr.Dropdown(label=f'LoRA {i + 1}',
                                                      choices=['None'] + modules.config.lora_filenames, value=n)
-                            lora_weight = gr.Slider(label='Weight', minimum=-2, maximum=2, step=0.01, value=v,
+                            lora_weight = gr.Slider(label='Weight', minimum=-3, maximum=3, step=0.01, value=v,
                                                     elem_classes='lora_weight')
                             lora_ctrls += [lora_model, lora_weight]
 
@@ -617,12 +606,8 @@ with shared.gradio_root:
                 stop_any.click(lambda x: gr.update(choices=worker.remove_task(x)[1]), inputs=queue_tasks_list, outputs=queue_tasks_list, queue=False)
 
             ##
-            clear_button.click(lambda: worker.states['gallery'].clear(), queue=False).then(fn=update_state, outputs=[
-                progress_html, progress_window, progress_gallery, gallery,
-                queue_running_task, queue_tasks_list,
-            ], queue=False)
             refresh_button.click(update_state, outputs=[
-                progress_html, progress_window, progress_gallery, gallery,
+                progress_html, progress_window, progress_gallery,
                 queue_running_task, queue_tasks_list,
             ], queue=False)
 
@@ -681,7 +666,7 @@ with shared.gradio_root:
         ctrls += [outpaint_selections, inpaint_input_image, inpaint_additional_prompt]
         ctrls += ip_ctrls
 
-        ctrls_outputs = [progress_html, progress_window, progress_gallery, gallery, queue_running_task, queue_tasks_list]
+        ctrls_outputs = [progress_html, progress_window, progress_gallery, queue_running_task, queue_tasks_list]
 
         # Generate click
         (
@@ -689,8 +674,8 @@ with shared.gradio_root:
             .click(lambda: (gr.update(visible=True, interactive=True),
                             gr.update(visible=True, interactive=True),
                             gr.update(visible=True, interactive=True),
-                            gr.update(visible=False), gr.update(open=False)),
-                   outputs=[stop_button, skip_button, queue_button, generate_button, gallery_holder])
+                            gr.update(visible=False)),
+                   outputs=[stop_button, skip_button, queue_button, generate_button])
             .then(fn=refresh_seed, inputs=[seed_random, image_seed], outputs=image_seed)
             .then(advanced_parameters.set_all_advanced_parameters, inputs=adps)
             .then(fn=generate_click, inputs=ctrls, outputs=ctrls_outputs)

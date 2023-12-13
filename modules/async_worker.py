@@ -59,7 +59,6 @@ states = {
     'preview': None,
     'running_task': None,
     'tasks_list': [],
-    'gallery': [],
 }
 
 
@@ -157,7 +156,6 @@ def worker():
 
     def yield_finish(async_task):
         states['preview'] = None
-        states['gallery'].extend(async_task.results)
         events.append(('Finish', async_task.results))
 
     def build_image_wall(async_task):
