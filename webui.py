@@ -50,7 +50,7 @@ def _list_tasks(kwargs: dict):
             model_iterators = [*modules.config.model_filenames]
         print(f'[Iterations] Model iterations list: {len(result)} * {model_iterators}')
         result = [
-            {**copy.deepcopy(task), "base_model_name": kwargs['model_selections'] + [x]}
+            {**copy.deepcopy(task), "base_model_name": x}
             for x in model_iterators
             for task in result
         ]
@@ -676,7 +676,7 @@ with shared.gradio_root:
                 model_refresh.click(model_refresh_clicked, [], [base_model, refiner_model, embeddings] + lora_ctrls,
                                     queue=False, show_progress=False)
 
-            with gr.Tab(label="Workspace", open=False):
+            with gr.Tab(label="Workspace"):
                 save_workspace = gr.Button(value="Save Workspace", interactive=False)
                 load_workspace = gr.Button(value='Load Workspace', interactive=False)
                 refresh_button = gr.Button(label="Refresh workspace", value="Refresh workspace",
