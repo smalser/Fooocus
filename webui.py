@@ -40,7 +40,7 @@ def _list_tasks(kwargs: dict):
             for y in result
         ]
 
-    models_all = kwargs.pop('style_iterator_all')
+    models_all = kwargs.pop('model_iterator_all')
     if kwargs.pop('model_iterator'):
         model_iterators = [*kwargs.pop('model_iterator_selections')]
         if models_all:
