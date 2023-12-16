@@ -348,8 +348,8 @@ with shared.gradio_root:
                     with gr.Group():
                         model_iterator_all = gr.Checkbox(label="All models")
                         model_iterator_selections = gr.CheckboxGroup(show_label=False,
-                                                                     choices=[],
-                                                                     value=modules.config.default_base_model_name,
+                                                                     choices=style_sorter.all_styles,
+                                                                     value=[],
                                                                      label='Selected Styles')
 
                     model_iterator_all.change(lambda x: gr.update(visible=not x), inputs=model_iterator_all,
