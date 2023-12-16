@@ -68,7 +68,7 @@ def create_task(*args):
     kwargs = dict(
         prompt=args.pop(), negative_prompt=args.pop(),
         style_selections=args.pop(), performance_selection=args.pop(), aspect_ratios_selection=args.pop(),
-        image_number=args.pop(), image_seed=args.pop(),
+        image_number=args.pop(), image_seed=int(args.pop()),
         sharpness=args.pop(), guidance_scale=args.pop(),
         custom_steps=args.pop(),
         base_model_name=args.pop(), refiner_model_name=args.pop(), refiner_switch=args.pop(),
