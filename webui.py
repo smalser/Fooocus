@@ -25,7 +25,7 @@ from modules.auth import auth_enabled, check_auth
 
 def _list_tasks(kwargs: dict):
     # Preprocess iterators
-    result = [kwargs]
+    result = [copy.deepcopy(kwargs)]
 
     styles_enabled = kwargs.pop('style_iterator')
     models_enabled = kwargs.pop('model_iterator')
@@ -40,9 +40,9 @@ def _list_tasks(kwargs: dict):
         style_iterators -= set(kwargs['style_selections'])
         print(f'[Iterations] Style iterations list: {len(result)} * {style_iterators}')
         result = [
-            {**y, "style_selections": kwargs['style_selections'] + [x]}
+            {**copy.deepcopy(task), "style_selections": kwargs['style_selections'] + [x]}
             for x in style_iterators
-            for y in result
+            for task in result
         ]
 
     if models_enabled:
@@ -50,9 +50,9 @@ def _list_tasks(kwargs: dict):
             model_iterators = [*modules.config.model_filenames]
         print(f'[Iterations] Model iterations list: {len(result)} * {model_iterators}')
         result = [
-            {**y, "base_model_name": kwargs['model_selections'] + [x]}
+            {**copy.deepcopy(task), "base_model_name": kwargs['model_selections'] + [x]}
             for x in model_iterators
-            for y in result
+            for task in result
         ]
 
     print(f'[Iterations] Iterations count: {len(result)}')
@@ -61,7 +61,7 @@ def _list_tasks(kwargs: dict):
 
 def create_task(*args):
     args = list(reversed(args))
-    kwargs = copy.deepcopy(dict(
+    kwargs = dict(
         prompt=args.pop(), negative_prompt=args.pop(),
         style_selections=args.pop(), performance_selection=args.pop(), aspect_ratios_selection=args.pop(),
         image_number=args.pop(), image_seed=args.pop(),
@@ -75,7 +75,7 @@ def create_task(*args):
         style_iterator=args.pop(), style_iterator_all=args.pop(), style_iterator_selections=args.pop(),
         model_iterator=args.pop(), model_iterator_all=args.pop(), model_iterator_selections=args.pop(),
         ip_ctrls=args,
-    ))
+    )
 
     kwargs_list = _list_tasks(kwargs)
     return [worker.AsyncTask(**x) for x in kwargs_list]
