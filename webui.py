@@ -27,9 +27,10 @@ def _list_tasks(kwargs: dict):
     # Preprocess iterators
     result = [kwargs]
 
+    styles_all = kwargs.pop('style_iterator_all')
     if kwargs.pop('style_iterator'):
         style_iterators = set(kwargs.pop('style_iterator_selections'))
-        if kwargs.pop('style_iterator_all'):
+        if styles_all:
             style_iterators = set(style_sorter.all_styles)
         style_iterators -= set(kwargs['style_selections'])
         print(f'[Iterations] Style iterations list: {len(result)} * {style_iterators}')
@@ -39,9 +40,10 @@ def _list_tasks(kwargs: dict):
             for y in result
         ]
 
+    models_all = kwargs.pop('style_iterator_all')
     if kwargs.pop('model_iterator'):
         model_iterators = [*kwargs.pop('model_iterator_selections')]
-        if kwargs.pop('model_iterator_all'):
+        if models_all:
             model_iterators = [*modules.config.model_filenames]
         print(f'[Iterations] Model iterations list: {len(result)} * {model_iterators}')
         result = [
@@ -345,7 +347,7 @@ with shared.gradio_root:
                     model_iterator_all.change(lambda x: gr.update(visible=not x), inputs=model_iterator_all,
                                               outputs=model_iterator_selections, queue=False)
 
-            with gr.Tab(label='Debug', open=False):
+            with gr.Tab(label='Debug'):
                 gr.HTML(
                     '<a href="https://github.com/lllyasviel/Fooocus/discussions/117" target="_blank">\U0001F4D4 Document</a>')
                 with gr.Column() as dev_tools:
@@ -550,7 +552,10 @@ with shared.gradio_root:
                 with gr.Group():
                     image_number = gr.Slider(label='Image Number', minimum=1, maximum=32, step=1,
                                              value=modules.config.default_image_number)
-                    seed_random = gr.Checkbox(label='Random Seed', value=True)
+                    with gr.Row():
+                        seed_random = gr.Checkbox(label='Random Seed', value=True)
+                        iterations_one_seed = gr.Checkbox(label='One seed for iterations', value=False)
+
                     image_seed = gr.Textbox(label='Seed', value=0, max_lines=1)
 
                 aspect_ratios_selection = gr.Dropdown(label='Aspect Ratios', choices=modules.config.available_aspect_ratios,
