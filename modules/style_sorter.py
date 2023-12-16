@@ -2,6 +2,8 @@ import os
 import gradio as gr
 import modules.localization as localization
 import json
+from modules.sdxl_styles import legal_style_names
+from modules import config
 
 
 all_styles = []
@@ -54,3 +56,6 @@ def search_styles(selected, query):
     unmatched = [y for y in unselected if y not in matched]
     sorted_styles = matched + selected + unmatched
     return gr.CheckboxGroup.update(choices=sorted_styles)
+
+
+try_load_sorted_styles(style_names=legal_style_names, default_selected=config.default_styles)

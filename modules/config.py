@@ -378,17 +378,20 @@ os.makedirs(path_outputs, exist_ok=True)
 model_filenames = []
 lora_filenames = []
 embedding_filenames = []
+wildcard_filenames = []
 
 
-def get_model_filenames(folder_path, name_filter=None):
-    return get_files_from_folder(folder_path, ['.pth', '.ckpt', '.bin', '.safetensors', '.fooocus.patch'], name_filter)
+def get_model_filenames(folder_path, name_filter=None, extensions=None):
+    extensions = extensions or ['.pth', '.ckpt', '.bin', '.safetensors', '.fooocus.patch']
+    return get_files_from_folder(folder_path, extensions, name_filter)
 
 
 def update_all_model_names():
-    global model_filenames, lora_filenames, embedding_filenames
+    global model_filenames, lora_filenames, embedding_filenames, wildcard_filenames
     model_filenames = get_model_filenames(path_checkpoints)
     lora_filenames = get_model_filenames(path_loras)
     embedding_filenames = get_model_filenames(path_embeddings)
+    wildcard_filenames = get_model_filenames(modules.sdxl_styles.wildcards_path, extensions=[".txt"])
     return
 
 
@@ -509,6 +512,10 @@ def get_embedding_names_list():
         f'(embedding:{name.removesuffix(".safetensors")}:0.8)'
         for name in embedding_filenames
     ])
+
+
+def get_wildcards_list():
+    return "\n".join([f"__{str(x).rsplit('.', 1)[0]}__" for x in wildcard_filenames])
 
 
 update_all_model_names()

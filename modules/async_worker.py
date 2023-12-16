@@ -31,13 +31,15 @@ class TaskArgs:
     outpaint_selections: str
     inpaint_input_image: tp.Any
     inpaint_additional_prompt: str
+    style_iterator: list[str]
+    model_iterator: list[str]
     ip_ctrls: list
 
 
 class AsyncTask:
     def __init__(self, **kwargs):
         self.uuid = str(uuid.uuid4())
-        self.args = TaskArgs(**copy.deepcopy(kwargs))
+        self.args = TaskArgs(**kwargs)
         self.name = f"[{self.uuid}] {kwargs.get('prompt')}"
         #
         self.yields = []
@@ -75,8 +77,8 @@ def _update_task_states():
     return states['running_task'], states['tasks_list']
 
 
-def add_task(task: AsyncTask):
-    async_tasks.append(task)
+def add_tasks(*tasks):
+    async_tasks.extend(tasks)
     return _update_task_states()
 
 
