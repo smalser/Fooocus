@@ -31,6 +31,7 @@ def _list_tasks(kwargs: dict):
     style_iterators = set(kwargs.pop('style_iterator_selections'))
     models_all = kwargs.pop('model_iterator_all')
     model_iterators = [*kwargs.pop('model_iterator_selections')]
+    one_seed = kwargs.pop('iterations_one_seed')
 
     result = [copy.deepcopy(kwargs)]
     if styles_enabled:
@@ -54,6 +55,10 @@ def _list_tasks(kwargs: dict):
             for task in result
         ]
 
+    if not one_seed:
+        for delta, task in enumerate(result):
+            task['image_seed'] += delta
+
     print(f'[Iterations] Iterations count: {len(result)}')
     return result
 
@@ -71,6 +76,7 @@ def create_task(*args):
         input_image_checkbox=args.pop(), current_tab=args.pop(),
         uov_method=args.pop(), uov_input_image=args.pop(),
         outpaint_selections=args.pop(), inpaint_input_image=args.pop(), inpaint_additional_prompt=args.pop(),
+        iterations_one_seed=args.pop(),
         style_iterator=args.pop(), style_iterator_all=args.pop(), style_iterator_selections=args.pop(),
         model_iterator=args.pop(), model_iterator_all=args.pop(), model_iterator_selections=args.pop(),
         ip_ctrls=args,
@@ -747,7 +753,7 @@ with shared.gradio_root:
         ctrls += [input_image_checkbox, current_tab]
         ctrls += [uov_method, uov_input_image]
         ctrls += [outpaint_selections, inpaint_input_image, inpaint_additional_prompt]
-        ctrls += [style_iterator, style_iterator_all, style_iterator_selections, model_iterator, model_iterator_all, model_iterator_selections]
+        ctrls += [iterations_one_seed, style_iterator, style_iterator_all, style_iterator_selections, model_iterator, model_iterator_all, model_iterator_selections]
         ctrls += ip_ctrls
 
         ctrls_outputs = [progress_html, progress_window, progress_gallery, queue_running_task, queue_tasks_list]
