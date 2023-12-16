@@ -25,8 +25,6 @@ from modules.auth import auth_enabled, check_auth
 
 def _list_tasks(kwargs: dict):
     # Preprocess iterators
-    result = [copy.deepcopy(kwargs)]
-
     styles_enabled = kwargs.pop('style_iterator')
     models_enabled = kwargs.pop('model_iterator')
     styles_all = kwargs.pop('style_iterator_all')
@@ -34,6 +32,7 @@ def _list_tasks(kwargs: dict):
     models_all = kwargs.pop('model_iterator_all')
     model_iterators = [*kwargs.pop('model_iterator_selections')]
 
+    result = [copy.deepcopy(kwargs)]
     if styles_enabled:
         if styles_all:
             style_iterators = set(style_sorter.all_styles)
