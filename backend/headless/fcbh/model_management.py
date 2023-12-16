@@ -351,7 +351,7 @@ def free_memory(memory_required, device, keep_loaded=[]):
 
 def load_models_gpu(models, memory_required=0):
     # TODO
-    return
+    # return
     global vram_state
 
     inference_memory = minimum_inference_memory()
