@@ -768,8 +768,8 @@ with shared.gradio_root:
             generate_button
             .click(lambda: (gr.update(visible=False),
                             gr.update(visible=True),
-                            gr.update(interactive=False),
-                            gr.update(interactive=False)),
+                            gr.update(interactive=True),
+                            gr.update(interactive=True)),
                    outputs=[generate_button, queue_button, skip_button, stop_button])
             .then(fn=refresh_seed, inputs=[seed_random, image_seed], outputs=image_seed)
             .then(advanced_parameters.set_all_advanced_parameters, inputs=adps)
