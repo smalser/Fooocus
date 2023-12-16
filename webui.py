@@ -705,7 +705,7 @@ with shared.gradio_root:
             with gr.Tab(label="Output"):
                 save_file_folder = gr.Textbox(label='File Folder')
                 save_file_name = gr.Textbox(label='File Name')
-                save_file_format = gr.CheckboxGroup(label='Format', choices=['JPG', 'PNG'], value='PNG')
+                save_file_format = gr.Radio(label='Format', choices=['JPG', 'PNG'], value='PNG')
                 save_metadata = gr.Checkbox(label='Save metadata')
 
             ##
