@@ -210,7 +210,7 @@ def worker():
     def handler(async_task: AsyncTask):
         execution_start_time = time.perf_counter()
         args = async_task.args
-        save_args = {x: getattr(async_task.args, x) for x in async_task.args.__slots__ if x.startswith('save_')}
+        save_args = {x: getattr(async_task.args, x) for x in TaskArgs.__match_args__ if x.startswith('save_')}
         result_filenames = []
 
         cn_tasks = {x: [] for x in flags.ip_list}
