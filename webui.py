@@ -27,9 +27,14 @@ def _list_tasks(kwargs: dict):
     # Preprocess iterators
     result = [kwargs]
 
+    styles_enabled = kwargs.pop('style_iterator')
+    models_enabled = kwargs.pop('model_iterator')
     styles_all = kwargs.pop('style_iterator_all')
     style_iterators = set(kwargs.pop('style_iterator_selections'))
-    if kwargs.pop('style_iterator'):
+    models_all = kwargs.pop('model_iterator_all')
+    model_iterators = [*kwargs.pop('model_iterator_selections')]
+
+    if styles_enabled:
         if styles_all:
             style_iterators = set(style_sorter.all_styles)
         style_iterators -= set(kwargs['style_selections'])
@@ -40,9 +45,7 @@ def _list_tasks(kwargs: dict):
             for y in result
         ]
 
-    models_all = kwargs.pop('model_iterator_all')
-    model_iterators = [*kwargs.pop('model_iterator_selections')]
-    if kwargs.pop('model_iterator'):
+    if models_enabled:
         if models_all:
             model_iterators = [*modules.config.model_filenames]
         print(f'[Iterations] Model iterations list: {len(result)} * {model_iterators}')

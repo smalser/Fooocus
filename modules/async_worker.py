@@ -31,8 +31,6 @@ class TaskArgs:
     outpaint_selections: str
     inpaint_input_image: tp.Any
     inpaint_additional_prompt: str
-    style_iterator: list[str]
-    model_iterator: list[str]
     ip_ctrls: list
 
 
