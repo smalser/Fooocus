@@ -689,6 +689,12 @@ with shared.gradio_root:
                 refresh_button = gr.Button(label="Refresh workspace", value="Refresh workspace",
                                            elem_id='refresh_button')
 
+            with gr.Tab(label="Output"):
+                save_file_folder = gr.Textbox(label='File Folder')
+                save_file_name = gr.Textbox(label='File Name')
+                save_file_format = gr.Radio(label='Format', choices=['JPG', 'PNG'], value='PNG')
+                save_metadata = gr.Checkbox(label='Save metadata')
+
             with gr.Tab(label='Queue') as queue_tab:
                 stop_all = gr.Button(label="Stop all", value="Stop all", elem_id='stop_all_button')
 
@@ -701,12 +707,6 @@ with shared.gradio_root:
                 ##
                 stop_all.click(lambda: gr.update(choices=worker.clear_tasks()[1]), queue=False, outputs=queue_tasks_list)
                 stop_any.click(lambda x: gr.update(choices=worker.remove_task(x)[1]), inputs=queue_tasks_list, outputs=queue_tasks_list, queue=False)
-
-            with gr.Tab(label="Output"):
-                save_file_folder = gr.Textbox(label='File Folder')
-                save_file_name = gr.Textbox(label='File Name')
-                save_file_format = gr.Radio(label='Format', choices=['JPG', 'PNG'], value='PNG')
-                save_metadata = gr.Checkbox(label='Save metadata')
 
             ##
             refresh_button.click(update_state, outputs=[
