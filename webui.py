@@ -328,7 +328,7 @@ with shared.gradio_root:
                         style_iterator_all = gr.Checkbox(label="All styles")
                         style_iterator_selections = gr.CheckboxGroup(show_label=False,
                                                             choices=copy.deepcopy(style_sorter.all_styles),
-                                                            value=copy.deepcopy(modules.config.default_styles),
+                                                            value=[],
                                                             label='Selected Styles')
 
                     style_iterator_all.change(lambda x: gr.update(visible=not x), inputs=style_iterator_all, outputs=style_iterator_selections, queue=False)
@@ -338,7 +338,7 @@ with shared.gradio_root:
                     with gr.Group():
                         model_iterator_all = gr.Checkbox(label="All models")
                         model_iterator_selections = gr.CheckboxGroup(show_label=False,
-                                                                     choices=modules.config.model_filenames,
+                                                                     choices=[],
                                                                      value=modules.config.default_base_model_name,
                                                                      label='Selected Styles')
 
