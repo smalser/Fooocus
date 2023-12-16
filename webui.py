@@ -331,6 +331,11 @@ with shared.gradio_root:
                 inpaint_tab.select(lambda: 'inpaint', outputs=current_tab, queue=False, show_progress=False)
                 ip_tab.select(lambda: 'ip', outputs=current_tab, queue=False, show_progress=False)
 
+            with gr.Tab(label='Img2Vid'):
+                enable_img2vid = gr.Checkbox(label='Enable Img2Vid')
+
+
+
             with gr.Tab(label='Iterators'):
                 with gr.Tab(label='Styles'):
                     style_iterator = gr.Checkbox(label="Enable style iterator")
