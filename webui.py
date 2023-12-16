@@ -79,6 +79,7 @@ def create_task(*args):
         iterations_one_seed=args.pop(),
         style_iterator=args.pop(), style_iterator_all=args.pop(), style_iterator_selections=args.pop(),
         model_iterator=args.pop(), model_iterator_all=args.pop(), model_iterator_selections=args.pop(),
+        save_file_folder=args.pop(), save_file_name=args.pop(), save_file_format=args.pop(), save_metadata=args.pop(),
         ip_ctrls=args,
     )
 
@@ -124,6 +125,7 @@ def queue_click(*args):
         - outpaint_selections, inpaint_input_image, inpaint_additional_prompt
         - style_iterator, style_iterator_all, style_iterator_selections
           model_iterator, model_iterator_all, model_iterator_selections
+        - save_file_folder, save_file_name, save_file_format, save_metadata
         - *ip_ctrls
     Outputs:
         queue_running_task
@@ -693,11 +695,18 @@ with shared.gradio_root:
                 with gr.Group():
                     stop_any = gr.Button(label="Stop selected", value="Stop", elem_id='stop_any_button')
                     queue_running_task = gr.Text(label='Running task', lines=2, value=None)
+                    queue_count = gr.Markdown(value="Tasks queued: 0", container=False)
                     queue_tasks_list = gr.CheckboxGroup(label="Queued tasks", choices=[])
 
                 ##
                 stop_all.click(lambda: gr.update(choices=worker.clear_tasks()[1]), queue=False, outputs=queue_tasks_list)
                 stop_any.click(lambda x: gr.update(choices=worker.remove_task(x)[1]), inputs=queue_tasks_list, outputs=queue_tasks_list, queue=False)
+
+            with gr.Tab(label="Output"):
+                save_file_folder = gr.Textbox(label='File Folder')
+                save_file_name = gr.Textbox(label='File Name')
+                save_file_format = gr.CheckboxGroup(label='Format', choices=['JPG', 'PNG'], value='PNG')
+                save_metadata = gr.Checkbox(label='Save metadata')
 
             ##
             refresh_button.click(update_state, outputs=[
@@ -759,6 +768,7 @@ with shared.gradio_root:
         ctrls += [uov_method, uov_input_image]
         ctrls += [outpaint_selections, inpaint_input_image, inpaint_additional_prompt]
         ctrls += [iterations_one_seed, style_iterator, style_iterator_all, style_iterator_selections, model_iterator, model_iterator_all, model_iterator_selections]
+        ctrls += [save_file_folder, save_file_name, save_file_format, save_metadata]
         ctrls += ip_ctrls
 
         ctrls_outputs = [progress_html, progress_window, progress_gallery, queue_running_task, queue_tasks_list]

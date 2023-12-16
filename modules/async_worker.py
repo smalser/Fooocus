@@ -31,6 +31,10 @@ class TaskArgs:
     outpaint_selections: str
     inpaint_input_image: tp.Any
     inpaint_additional_prompt: str
+    save_file_folder: str
+    save_file_name: str
+    save_file_format: str
+    save_metadata: bool
     ip_ctrls: list
 
 
@@ -206,6 +210,7 @@ def worker():
     def handler(async_task: AsyncTask):
         execution_start_time = time.perf_counter()
         args = async_task.args
+        save_args = {x: getattr(async_task.args, x) for x in async_task.args.__slots__ if x.startswith('save_')}
         result_filenames = []
 
         cn_tasks = {x: [] for x in flags.ip_list}
@@ -854,7 +859,7 @@ def worker():
                     for n, w in args.loras:
                         if n != 'None':
                             d.append((f'LoRA [{n}] weight', w))
-                    filename = log(x, d, single_line_number=3)
+                    filename = log(x, d, single_line_number=3, **save_args)
                     result_filenames.append(filename)
 
                 yield_result(async_task, imgs, do_not_show_finished_images=len(tasks) == 1)
@@ -871,7 +876,7 @@ def worker():
 
         if advanced_parameters.generate_image_grid:
             wall = build_image_wall(async_task)
-            result_filenames = [log(wall, locals().get('d', {}))] or result_filenames
+            result_filenames = [log(wall, locals().get('d', {}), **save_args)] or result_filenames
 
         log_batch(result_filenames, locals().get('d', {}))
 

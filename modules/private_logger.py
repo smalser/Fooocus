@@ -14,27 +14,30 @@ log_cache = {}
 
 
 def get_current_html_path():
-    date_string, local_temp_filename, only_name = generate_temp_filename(folder=modules.config.path_outputs,
-                                                                         extension='png')
+    date_string, local_temp_filename, only_name = generate_temp_filename(folder=modules.config.path_outputs)
     html_name = os.path.join(os.path.dirname(local_temp_filename), 'log.html')
     return html_name
 
 
 def get_current_html_batch_path():
-    date_string, local_temp_filename, only_name = generate_temp_filename(folder=modules.config.path_outputs,
-                                                                         extension='png')
+    date_string, local_temp_filename, only_name = generate_temp_filename(folder=modules.config.path_outputs)
     html_name = os.path.join(os.path.dirname(local_temp_filename), 'log_batch.html')
     return html_name
 
 
-def log(img, dic, single_line_number=3):
+def log(img, dic, single_line_number=3, save_file_folder=None, save_file_name=None, save_file_format: str = 'PNG', save_metadata: bool = False):
     if img is None or args_manager.args.disable_image_log:
         return
 
-    date_string, local_temp_filename, only_name = generate_temp_filename(folder=modules.config.path_outputs, extension='png')
+    date_string, local_temp_filename, only_name = generate_temp_filename(folder=modules.config.path_outputs, extension=save_file_format.lower())
     os.makedirs(os.path.dirname(local_temp_filename), exist_ok=True)
-    pnginfo = PngInfo()
-    pnginfo.add_text("Comment", json.dumps(dic, ensure_ascii=False))
+
+    if save_metadata or save_file_format != 'PNG':
+        pnginfo = PngInfo()
+        pnginfo.add_text("Comment", json.dumps(dic, ensure_ascii=False))
+    else:
+        pnginfo = None
+
     Image.fromarray(img).save(local_temp_filename, pnginfo=pnginfo)
     html_name = os.path.join(os.path.dirname(local_temp_filename), 'log.html')
 
@@ -74,7 +77,7 @@ def log_batch(filenames, dic, single_line_number=3):
     if not filenames:
         return
 
-    date_string, local_temp_filename, _ = generate_temp_filename(folder=modules.config.path_outputs, extension='png')
+    date_string, local_temp_filename, _ = generate_temp_filename(folder=modules.config.path_outputs)
     html_name = os.path.join(os.path.dirname(local_temp_filename), 'log_batch.html')
     existing_log = log_cache.get(html_name, None)
 
