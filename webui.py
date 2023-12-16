@@ -32,6 +32,7 @@ def _list_tasks(kwargs: dict):
         if kwargs.pop('style_iterator_all'):
             style_iterators = set(style_sorter.all_styles)
         style_iterators -= set(kwargs['style_selections'])
+        print(f'[Iterations] Style iterations list: {len(result)} * {style_iterators}')
         result = [
             {**y, "style_selections": kwargs['style_selections'] + [x]}
             for x in style_iterators
@@ -42,12 +43,14 @@ def _list_tasks(kwargs: dict):
         model_iterators = [*kwargs.pop('model_iterator_selections')]
         if kwargs.pop('model_iterator_all'):
             model_iterators = [*modules.config.model_filenames]
+        print(f'[Iterations] Model iterations list: {len(result)} * {model_iterators}')
         result = [
             {**y, "base_model_name": kwargs['model_selections'] + [x]}
             for x in model_iterators
             for y in result
         ]
 
+    print(f'[Iterations] Iterations count: {len(result)}')
     return result
 
 
