@@ -25,18 +25,30 @@ from modules.auth import auth_enabled, check_auth
 
 def _list_tasks(kwargs: dict):
     # Preprocess iterators
+    result = [kwargs]
+
     if kwargs.pop('style_iterator'):
         style_iterators = set(kwargs.pop('style_iterator_selections'))
         if kwargs.pop('style_iterator_all'):
             style_iterators = set(style_sorter.all_styles)
         style_iterators -= set(kwargs['style_selections'])
-        kwargs['style_iterator'] = [kwargs['style_selections'] + [x] for x in style_iterators]
-        return [
-            {**kwargs, "style_selections": kwargs['style_selections'] + [x]}
+        result = [
+            {**y, "style_selections": kwargs['style_selections'] + [x]}
             for x in style_iterators
+            for y in result
         ]
-    else:
-        return [kwargs]
+
+    if kwargs.pop('model_iterator'):
+        model_iterators = [*kwargs.pop('model_iterator_selections')]
+        if kwargs.pop('model_iterator_all'):
+            model_iterators = [*modules.config.model_filenames]
+        result = [
+            {**y, "base_model_name": kwargs['model_selections'] + [x]}
+            for x in model_iterators
+            for y in result
+        ]
+
+    return result
 
 
 def create_task(*args):
