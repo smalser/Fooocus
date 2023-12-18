@@ -23,7 +23,7 @@ from modules.ui_gradio_extensions import reload_javascript
 from modules.auth import auth_enabled, check_auth
 
 
-def _list_tasks(kwargs: dict):
+def _iterate_tasks(kwargs: dict):
     # Preprocess iterators
     styles_enabled = kwargs.pop('style_iterator')
     models_enabled = kwargs.pop('model_iterator')
@@ -80,10 +80,15 @@ def create_task(*args):
         style_iterator=args.pop(), style_iterator_all=args.pop(), style_iterator_selections=args.pop(),
         model_iterator=args.pop(), model_iterator_all=args.pop(), model_iterator_selections=args.pop(),
         save_file_folder=args.pop(), save_file_name=args.pop(), save_file_format=args.pop(), save_metadata=args.pop(),
-        ip_ctrls=args,
+        image_prompts=[
+            {
+                'img': args.pop(), 'stop': args.pop(), 'weigth': args.pop(), 'type': args.pop(),
+            }
+            for _ in range(4)
+        ],
     )
 
-    kwargs_list = _list_tasks(kwargs)
+    kwargs_list = _iterate_tasks(kwargs)
     return [worker.AsyncTask(**x) for x in kwargs_list]
 
 
@@ -194,7 +199,7 @@ def processing_state():
             )
             continue
 
-        time.sleep(0.1)
+        time.sleep(0.01)
         if worker.events:
             flag, args = worker.events.pop(0)
 
@@ -335,8 +340,6 @@ with shared.gradio_root:
 
             with gr.Tab(label='Img2Vid'):
                 enable_img2vid = gr.Checkbox(label='Enable Img2Vid')
-
-
 
             with gr.Tab(label='Iterators'):
                 with gr.Tab(label='Styles'):
