@@ -353,7 +353,7 @@ def worker():
 
         progressbar(async_task, 3, 'Processing prompts ...')
         for i in range(args.image_number):
-            task_seed = (args.seed + i) % (constants.MAX_SEED + 1)  # randint is inclusive, % is not
+            task_seed = (args.image_seed + i) % (constants.MAX_SEED + 1)  # randint is inclusive, % is not
             task_rng = random.Random(task_seed)  # may bind to inpaint noise in the future
 
             task_prompt = apply_wildcards(prompt, task_rng)
@@ -704,7 +704,7 @@ def worker():
 
         store.cfg_scale = float(args.guidance_scale)
         print(f'[Parameters] CFG = {store.cfg_scale}')
-        print(f'[Parameters] Seed = {args.seed}')
+        print(f'[Parameters] Seed = {args.image_seed}')
 
         # Control nets
         _set_control_nets(async_task)
