@@ -190,6 +190,8 @@ def worker():
         store.outpaint_selections = [o.lower() for o in args.outpaint_selections]
         store.base_model_additional_loras = []
         store.raw_style_selections = copy.deepcopy(args.style_selections)
+        store.sampler_name = advanced_parameters.sampler_name
+        store.scheduler_name = advanced_parameters.scheduler_name
         store.goals = []
 
         # Set styles
@@ -865,7 +867,7 @@ def worker():
                     filename = log(x, d, single_line_number=3, **store.save_args)
                     store.result_filenames.append(filename)
 
-                yield_result(async_task, imgs, do_not_show_finished_images=len(task.tasks) == 1)
+                yield_result(async_task, imgs, do_not_show_finished_images=len(async_task.tasks) == 1)
             except fcbh.model_management.InterruptProcessingException as e:
                 if shared.last_stop == 'skip':
                     print('User skipped')
