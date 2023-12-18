@@ -883,7 +883,7 @@ def worker():
             wall = build_image_wall(async_task)
             store.result_filenames = [log(wall, locals().get('d', {}), **store.save_args)] or store.result_filenames
 
-        log_batch(store.result_filenamesresult_filenames, locals().get('d', {}))
+        log_batch(store.result_filenames, locals().get('d', {}))
 
         return
 
