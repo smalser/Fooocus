@@ -81,17 +81,18 @@ def worker():
     import modules.flags as flags
     import modules.config
     import modules.patch
-    import fcbh.model_management
-    import fooocus_extras.preprocessors as preprocessors
+    import ldm_patched.modules.model_management
+    import extras.preprocessors as preprocessors
     import modules.inpaint_worker as inpaint_worker
     import modules.constants as constants
     import modules.advanced_parameters as advanced_parameters
-    import fooocus_extras.ip_adapter as ip_adapter
-    import fooocus_extras.face_crop
+    import extras.ip_adapter as ip_adapter
+    import extras.face_crop
+    import fooocus_version
 
     from modules.sdxl_styles import apply_style, apply_wildcards, fooocus_expansion
     from modules.private_logger import log
-    from modules.expansion import safe_str
+    from extras.expansion import safe_str
     from modules.util import remove_empty_str, HWC3, resize_image, \
         get_image_shape_ceil, set_image_shape_ceil, get_shape_ceil, resample_image
     from modules.upscaler import perform_upscale
@@ -489,7 +490,7 @@ def worker():
 
         if direct_return:
             d = [('Upscale (Fast)', '2x')]
-            log(args.uov_input_image, d, single_line_number=1)
+            log(args.uov_input_image, d)
             yield_result(async_task, args.uov_input_image, do_not_show_finished_images=True)
             return
 
@@ -658,7 +659,7 @@ def worker():
             cn_img = HWC3(cn_img)
 
             if not advanced_parameters.skipping_cn_preprocessor:
-                cn_img = fooocus_extras.face_crop.crop_image(cn_img)
+                cn_img = extras.face_crop.crop_image(cn_img)
 
             # https://github.com/tencent-ailab/IP-Adapter/blob/d580c50a291566bbf9fc7ac0f760506607297e6d/README.md?plain=1#L75
             cn_img = resize_image(cn_img, width=224, height=224, resize_mode=0)
@@ -859,16 +860,17 @@ def worker():
                         ('Refiner Switch', args.refiner_switch),
                         ('Sampler', store.sampler_name),
                         ('Scheduler', store.scheduler_name),
-                        ('Seed', task['task_seed'])
+                        ('Seed', task['task_seed']),
                     ]
                     for n, w in args.loras:
                         if n != 'None':
-                            d.append((f'LoRA [{n}] weight', w))
+                            d.append((f'LoRA', f'{n} : {w}'))
+                    d.append(('Version', 'v' + fooocus_version.version))
                     filename = log(x, d, single_line_number=3, **store.save_args)
                     store.result_filenames.append(filename)
 
                 yield_result(async_task, imgs, do_not_show_finished_images=len(async_task.tasks) == 1)
-            except fcbh.model_management.InterruptProcessingException as e:
+            except ldm_patched.modules.model_management.InterruptProcessingException as e:
                 if shared.last_stop == 'skip':
                     print('User skipped')
                     continue

@@ -136,7 +136,7 @@ def queue_click(*args):
         queue_running_task
         queue_tasks_list
     """
-    import fcbh.model_management as model_management
+    import ldm_patched.modules.model_management as model_management
 
     with model_management.interrupt_processing_mutex:
         model_management.interrupt_processing = False
@@ -147,7 +147,7 @@ def queue_click(*args):
 
 
 def generate_click(*args):
-    import fcbh.model_management as model_management
+    import ldm_patched.modules.model_management as model_management
 
     with model_management.interrupt_processing_mutex:
         model_management.interrupt_processing = False
@@ -333,10 +333,24 @@ with shared.gradio_root:
                         gr.HTML('* Powered by Fooocus Inpaint Engine <a href="https://github.com/lllyasviel/Fooocus/discussions/414" target="_blank">\U0001F4D4 Document</a>')
                         example_inpaint_prompts.click(lambda x: x[0], inputs=example_inpaint_prompts, outputs=inpaint_additional_prompt, show_progress=False, queue=False)
 
+                    with gr.TabItem(label='Describe') as desc_tab:
+                        with gr.Row():
+                            with gr.Column():
+                                desc_input_image = grh.Image(label='Drag any image to here', source='upload', type='numpy')
+                            with gr.Column():
+                                desc_method = gr.Radio(
+                                    label='Content Type',
+                                    choices=[flags.desc_type_photo, flags.desc_type_anime],
+                                    value=flags.desc_type_photo)
+                                desc_btn = gr.Button(value='Describe this Image into Prompt')
+                                gr.HTML('<a href="https://github.com/lllyasviel/Fooocus/discussions/1363" target="_blank">\U0001F4D4 Document</a>')
+
+
                 current_tab = gr.Textbox(value='uov', visible=False)
                 uov_tab.select(lambda: 'uov', outputs=current_tab, queue=False, show_progress=False)
                 inpaint_tab.select(lambda: 'inpaint', outputs=current_tab, queue=False, show_progress=False)
                 ip_tab.select(lambda: 'ip', outputs=current_tab, queue=False, show_progress=False)
+                desc_tab.select(lambda: 'desc', outputs=current_tab, queue=False, show_progress=False)
 
             with gr.Tab(label='Img2Vid'):
                 enable_img2vid = gr.Checkbox(label='Enable Img2Vid')
@@ -533,13 +547,13 @@ with shared.gradio_root:
                     stop_button = gr.Button(label="Stop", value="Stop", elem_id='stop_button', interactive=False)
 
                 def stop_clicked():
-                    import fcbh.model_management as model_management
+                    import ldm_patched.modules.model_management as model_management
                     shared.last_stop = 'stop'
                     model_management.interrupt_current_processing()
                     return
 
                 def skip_clicked():
-                    import fcbh.model_management as model_management
+                    import ldm_patched.modules.model_management as model_management
                     shared.last_stop = 'skip'
                     model_management.interrupt_current_processing()
                     return
@@ -717,12 +731,12 @@ with shared.gradio_root:
                 queue_running_task, queue_tasks_list,
             ], queue=False)
 
-            performance_selection.change(lambda x: [gr.update(interactive=x != 'Extreme Speed')] * 11,
+            performance_selection.change(lambda x: [gr.update(interactive=x != 'Extreme Speed')] * 12,
                                          inputs=performance_selection,
                                          outputs=[
                                              guidance_scale, sharpness, adm_scaler_end, adm_scaler_positive,
                                              adm_scaler_negative, refiner_switch, refiner_model, sampler_name,
-                                             scheduler_name, adaptive_cfg, refiner_swap_method
+                                             scheduler_name, adaptive_cfg, refiner_swap_method, negative_prompt
                                          ], queue=False, show_progress=False)
 
             def inpaint_mode_change(mode):
@@ -805,6 +819,18 @@ with shared.gradio_root:
                 gr.Audio(interactive=False, value=notification_file, elem_id='audio_notification', visible=False)
                 break
 
+        def trigger_describe(mode, img):
+            if mode == flags.desc_type_photo:
+                from extras.interrogate import default_interrogator as default_interrogator_photo
+                return default_interrogator_photo(img), ["Fooocus V2", "Fooocus Enhance", "Fooocus Sharp"]
+            if mode == flags.desc_type_anime:
+                from extras.wd14tagger import default_interrogator as default_interrogator_anime
+                return default_interrogator_anime(img), ["Fooocus V2", "Fooocus Masterpiece"]
+            return mode, ["Fooocus V2"]
+
+        desc_btn.click(trigger_describe, inputs=[desc_method, desc_input_image],
+                       outputs=[prompt, style_selections], show_progress=True, queue=False)
+
 
 def dump_default_english_config():
     from modules.localization import dump_english_config
@@ -815,7 +841,7 @@ def dump_default_english_config():
 
 def start_webui():
     shared.gradio_root.launch(
-        inbrowser=args_manager.args.auto_launch,
+        inbrowser=args_manager.args.in_browser,
         server_name=args_manager.args.listen,
         server_port=args_manager.args.port,
         share=args_manager.args.share,
