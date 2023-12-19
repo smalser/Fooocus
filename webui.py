@@ -1,5 +1,3 @@
-import itertools
-
 import gradio as gr
 import random
 import os
@@ -19,6 +17,7 @@ import copy
 
 from modules import sdxl_styles
 from modules.private_logger import get_current_html_batch_path, get_current_html_path
+from modules.sdxl_styles import legal_style_names
 from modules.ui_gradio_extensions import reload_javascript
 from modules.auth import auth_enabled, check_auth
 
@@ -359,6 +358,10 @@ with shared.gradio_root:
                 with gr.Tab(label='Styles'):
                     style_iterator = gr.Checkbox(label="Enable style iterator")
                     with gr.Group():
+                        style_sorter.try_load_sorted_styles(
+                            style_names=legal_style_names,
+                            default_selected=modules.config.default_styles)
+
                         style_iterator_all = gr.Checkbox(label="All styles")
                         style_iterator_selections = gr.CheckboxGroup(show_label=False,
                                                             choices=copy.deepcopy(style_sorter.all_styles),
@@ -631,6 +634,7 @@ with shared.gradio_root:
                                         queue=False,
                                         show_progress=False).then(
                     lambda: None, _js='()=>{refresh_style_localization();}')
+
                 gradio_receiver_style_selections.input(style_sorter.sort_styles,
                                                        inputs=style_selections,
                                                        outputs=style_selections,
