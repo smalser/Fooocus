@@ -813,11 +813,12 @@ def dump_default_english_config():
 
 # dump_default_english_config()
 
-shared.gradio_root.launch(
-    inbrowser=args_manager.args.auto_launch,
-    server_name=args_manager.args.listen,
-    server_port=args_manager.args.port,
-    share=args_manager.args.share,
-    auth=check_auth if args_manager.args.share and auth_enabled else None,
-    blocked_paths=[constants.AUTH_FILENAME]
-)
+def start_webui():
+    shared.gradio_root.launch(
+        inbrowser=args_manager.args.auto_launch,
+        server_name=args_manager.args.listen,
+        server_port=args_manager.args.port,
+        share=args_manager.args.share,
+        auth=check_auth if args_manager.args.share and auth_enabled else None,
+        blocked_paths=[constants.AUTH_FILENAME]
+    )

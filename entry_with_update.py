@@ -43,4 +43,7 @@ except Exception as e:
     print(str(e))
 
 print('Update succeeded.')
-from launch import *
+
+from launch import start_webui
+
+start_webui()

@@ -105,3 +105,5 @@ if args.cuda_device is not None:
 download_models()
 
 from webui import *
+
+# start_webui()
