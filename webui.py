@@ -81,7 +81,7 @@ def create_task(*args):
         save_file_folder=args.pop(), save_file_name=args.pop(), save_file_format=args.pop(), save_metadata=args.pop(),
         image_prompts=[
             {
-                'img': args.pop(), 'stop': args.pop(), 'weigth': args.pop(), 'type': args.pop(),
+                'img': args.pop(), 'stop': args.pop(), 'weight': args.pop(), 'type': args.pop(),
             }
             for _ in range(4)
         ],
