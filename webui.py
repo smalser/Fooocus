@@ -570,13 +570,13 @@ with shared.gradio_root:
                     f'<a href="/file={get_current_html_batch_path()}" target="_blank">\U0001F4DA History Log(batched)</a>')
 
             with gr.Tab(label='Setting'):
-                with gr.Group():
+                with gr.Group():  # Performance
                     performance_selection = gr.Radio(label='Performance',
                                                      choices=modules.flags.performance_selections,
                                                      value=modules.config.default_performance)
                     custom_steps = gr.Slider(label='Steps', minimum=1, maximum=200, step=1, value=30, interactive=False)
 
-                with gr.Group():
+                with gr.Group():  # Guidance, Sharpness
                     guidance_scale = gr.Slider(label='Guidance Scale', minimum=1.0, maximum=30.0, step=0.01,
                                                value=modules.config.default_cfg_scale,
                                                info='Higher value means style is cleaner, vivider, and more artistic.')
@@ -584,10 +584,10 @@ with shared.gradio_root:
                                           value=modules.config.default_sample_sharpness,
                                           info='Higher value means image and texture are sharper.')
 
-                with gr.Group():
+                with gr.Group():  # Images / Seed
                     image_number = gr.Slider(label='Image Number', minimum=1, maximum=32, step=1,
                                              value=modules.config.default_image_number)
-                    with gr.Row():
+                    with gr.Row():  # Seed
                         seed_random = gr.Checkbox(label='Random Seed', value=True)
                         iterations_one_seed = gr.Checkbox(label='One seed for iterations', value=False)
 
@@ -816,7 +816,7 @@ with shared.gradio_root:
             .then(fn=lambda: None, _js='playNotification')
             .then(fn=lambda: None, _js='refresh_grid_delayed')
         )
-        queue_button.click(queue_click, inputs=ctrls, outputs=[queue_running_task, queue_tasks_list], queue=False)
+        queue_button.click(refresh_seed, inputs=[seed_random, image_seed], outputs=image_seed, queue=False).then(fn=queue_click, inputs=ctrls, outputs=[queue_running_task, queue_tasks_list], queue=False)
 
         for notification_file in ['notification.ogg', 'notification.mp3']:
             if os.path.exists(notification_file):
