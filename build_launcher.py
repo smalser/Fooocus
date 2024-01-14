@@ -12,6 +12,9 @@ pause
 
 
 def build_launcher():
+    # SKIP pls
+    return
+
     if not is_win32_standalone_build:
         return
 

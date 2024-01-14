@@ -107,3 +107,5 @@ if args.gpu_device_id is not None:
 download_models()
 
 from webui import *
+
+# start_webui()

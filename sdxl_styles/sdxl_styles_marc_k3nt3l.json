@@ -170,7 +170,7 @@
     "negative_prompt": "uniform metal surfaces."
   },
   {
-    "name": "Pebble Art",
+    "name": "MK Pebble Art",
     "prompt": "a sculpture made of peebles, {prompt}. Pebble art style,natural materials, textured surfaces, balanced compositions, organic forms, harmonious arrangements, tactile and 3D effects, beach-inspired aesthetic, creative storytelling, artisanal craftsmanship.",
     "negative_prompt": "non-natural materials, lack of textured surfaces, imbalanced compositions, absence of organic forms, non-tactile appearance."
   },
