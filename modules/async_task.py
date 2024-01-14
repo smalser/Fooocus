@@ -28,6 +28,7 @@ class TaskArgs:
     outpaint_selections: str
     inpaint_input_image: tp.Any
     inpaint_additional_prompt: str
+    inpaint_mask_image: tp.Any
     save_file_folder: str
     save_file_name: str
     save_file_format: str
