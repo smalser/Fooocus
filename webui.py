@@ -1,6 +1,7 @@
 import gradio as gr
 import random
 import os
+import json
 import time
 import shared
 import modules.config
@@ -12,6 +13,7 @@ import modules.flags as flags
 import modules.gradio_hijack as grh
 import modules.advanced_parameters as advanced_parameters
 import modules.style_sorter as style_sorter
+import modules.meta_parser
 import args_manager
 import copy
 
@@ -75,6 +77,7 @@ def create_task(*args):
         input_image_checkbox=args.pop(), current_tab=args.pop(),
         uov_method=args.pop(), uov_input_image=args.pop(),
         outpaint_selections=args.pop(), inpaint_input_image=args.pop(), inpaint_additional_prompt=args.pop(),
+        inpaint_mask_image=args.pop(),
         iterations_one_seed=args.pop(),
         style_iterator=args.pop(), style_iterator_all=args.pop(), style_iterator_selections=args.pop(),
         model_iterator=args.pop(), model_iterator_all=args.pop(), model_iterator_selections=args.pop(),
@@ -323,7 +326,10 @@ with shared.gradio_root:
                                 gr.HTML('<a href="https://github.com/lllyasviel/Fooocus/discussions/390" target="_blank">\U0001F4D4 Document</a>')
 
                     with gr.TabItem(label='Inpaint or Outpaint') as inpaint_tab:
-                        inpaint_input_image = grh.Image(label='Drag above image to here', source='upload', type='numpy', tool='sketch', height=500, brush_color="#FFFFFF", elem_id='inpaint_canvas')
+                        with gr.Row():
+                            inpaint_input_image = grh.Image(label='Drag inpaint or outpaint image to here', source='upload', type='numpy', tool='sketch', height=500, brush_color="#FFFFFF", elem_id='inpaint_canvas')
+                            inpaint_mask_image = grh.Image(label='Mask Upload', source='upload', type='numpy', height=500, visible=False)
+
                         with gr.Row():
                             inpaint_additional_prompt = gr.Textbox(placeholder="Describe what you want to inpaint.", elem_id='inpaint_additional_prompt', label='Inpaint Additional Prompt', visible=False)
                             outpaint_selections = gr.CheckboxGroup(choices=['Left', 'Right', 'Top', 'Bottom'], value=[], label='Outpaint Direction')
@@ -481,8 +487,21 @@ with shared.gradio_root:
                                                                   'Value 1 is same as "Whole Image" in A1111. '
                                                                   'Only used in inpaint, not used in outpaint. '
                                                                   '(Outpaint always use 1.0)')
-                        inpaint_ctrls = [debugging_inpaint_preprocessor, inpaint_disable_initial_latent,
-                                         inpaint_engine, inpaint_strength, inpaint_respective_field]
+                        inpaint_erode_or_dilate = gr.Slider(label='Mask Erode or Dilate',
+                                                            minimum=-64, maximum=64, step=1, value=0,
+                                                            info='Positive value will make white area in the mask larger, '
+                                                                 'negative value will make white area smaller.'
+                                                                 '(default is 0, always process before any mask invert)')
+                        inpaint_mask_upload_checkbox = gr.Checkbox(label='Enable Mask Upload', value=False)
+                        invert_mask_checkbox = gr.Checkbox(label='Invert Mask', value=False)
+
+                        inpaint_ctrls = [debugging_inpaint_preprocessor, inpaint_disable_initial_latent, inpaint_engine,
+                                         inpaint_strength, inpaint_respective_field,
+                                         inpaint_mask_upload_checkbox, invert_mask_checkbox, inpaint_erode_or_dilate]
+
+                        inpaint_mask_upload_checkbox.change(lambda x: gr.update(visible=x),
+                                                           inputs=inpaint_mask_upload_checkbox,
+                                                           outputs=inpaint_mask_image, queue=False, show_progress=False)
 
                     with gr.Tab(label='FreeU'):
                         freeu_enabled = gr.Checkbox(label='Enabled', value=False)
@@ -548,6 +567,10 @@ with shared.gradio_root:
                 with gr.Column():
                     skip_button = gr.Button(label="Skip", value="Skip", interactive=False)
                     stop_button = gr.Button(label="Stop", value="Stop", elem_id='stop_button', interactive=False)
+                    load_parameter_button = gr.Button(label="Load Parameters", value="Load Parameters",
+                                                      elem_classes='type_row', elem_id='load_parameter_button',
+                                                      visible=False)
+
 
                 def stop_clicked():
                     import ldm_patched.modules.model_management as model_management
@@ -787,12 +810,61 @@ with shared.gradio_root:
         ctrls += [base_model, refiner_model, refiner_switch] + lora_ctrls
         ctrls += [input_image_checkbox, current_tab]
         ctrls += [uov_method, uov_input_image]
-        ctrls += [outpaint_selections, inpaint_input_image, inpaint_additional_prompt]
-        ctrls += [iterations_one_seed, style_iterator, style_iterator_all, style_iterator_selections, model_iterator, model_iterator_all, model_iterator_selections]
+        ctrls += [outpaint_selections, inpaint_input_image, inpaint_additional_prompt, inpaint_mask_image]
+        ctrls += [iterations_one_seed, style_iterator, style_iterator_all, style_iterator_selections, model_iterator, model_iterator_all,
+                  model_iterator_selections]
         ctrls += [save_file_folder, save_file_name, save_file_format, save_metadata]
         ctrls += ip_ctrls
 
         ctrls_outputs = [progress_html, progress_window, progress_gallery, queue_running_task, queue_tasks_list]
+
+        state_is_generating = gr.State(False)
+
+        def parse_meta(raw_prompt_txt, is_generating):
+            loaded_json = None
+            try:
+                if '{' in raw_prompt_txt:
+                    if '}' in raw_prompt_txt:
+                        if ':' in raw_prompt_txt:
+                            loaded_json = json.loads(raw_prompt_txt)
+                            assert isinstance(loaded_json, dict)
+            except:
+                loaded_json = None
+
+            if loaded_json is None:
+                if is_generating:
+                    return gr.update(), gr.update(), gr.update()
+                else:
+                    return gr.update(), gr.update(visible=True), gr.update(visible=False)
+
+            return json.dumps(loaded_json), gr.update(visible=False), gr.update(visible=True)
+
+        prompt.input(parse_meta, inputs=[prompt, state_is_generating], outputs=[prompt, generate_button, load_parameter_button], queue=False, show_progress=False)
+
+        load_parameter_button.click(modules.meta_parser.load_parameter_button_click, inputs=[prompt, state_is_generating], outputs=[
+            image_number,
+            prompt,
+            negative_prompt,
+            style_selections,
+            performance_selection,
+            aspect_ratios_selection,
+            overwrite_width,
+            overwrite_height,
+            sharpness,
+            guidance_scale,
+            adm_scaler_positive,
+            adm_scaler_negative,
+            adm_scaler_end,
+            base_model,
+            refiner_model,
+            refiner_switch,
+            sampler_name,
+            scheduler_name,
+            seed_random,
+            image_seed,
+            generate_button,
+            load_parameter_button
+        ] + lora_ctrls, queue=False, show_progress=False)
 
         # Generate click
         (
@@ -833,7 +905,7 @@ with shared.gradio_root:
             return mode, ["Fooocus V2"]
 
         desc_btn.click(trigger_describe, inputs=[desc_method, desc_input_image],
-                       outputs=[prompt, style_selections], show_progress=True, queue=False)
+                       outputs=[prompt, style_selections], show_progress=True, queue=True)
 
 
 def dump_default_english_config():
